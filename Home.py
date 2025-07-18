@@ -24,7 +24,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">📄 CSV → Excel (Probe Card Analyzer)</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">📄 CSV → Excel (Filter by Probe ID)</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtext">Upload one or more CSV files to extract only the Probe ID section.</div>', unsafe_allow_html=True)
 
 # ✅ Initialize session state for multiple files
@@ -99,4 +99,4 @@ if st.session_state.multi_files_df:
                 st.rerun()
 
 # ➡️ ไปหน้า Analyzer 2
-st.page_link("pages/Probe Card Analyzer.py", label="➡️ Go to 🔍 Probe Card Analyzer ")
+st.page_link("pages/Probe_Card_Analyzer_2.py", label="➡️ Go to 🔍 Probe Card Analyzer Page")
