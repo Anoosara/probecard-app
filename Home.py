@@ -12,11 +12,11 @@ st.markdown("""
     .main-title {
         font-size: 36px;
         font-weight: 800;
-        color: #F9FAFB;
+        color: #000000;
         margin-bottom: 10px;
     }
     .subtext {
-        color: #aaa;
+        color: #222222;
         font-size: 16px;
         margin-top: -5px;
         margin-bottom: 20px;
