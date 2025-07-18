@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 st.set_page_config(page_title="Analyzer 2", layout="wide")
-st.title("📊 Probe Card Analyzer ")
+st.title("📊 Probe Card Analyzer 2")
 
 def save_table_as_image(df, title, filename):
     fig, ax = plt.subplots(figsize=(6, 2 + 0.3 * len(df)))
@@ -31,7 +31,7 @@ def save_table_as_image(df, title, filename):
 
 # ✅ โหลดจากหลายไฟล์
 if "multi_files_df" not in st.session_state or not st.session_state["multi_files_df"]:
-    st.warning("⚠️ Please upload the file  first.")
+    st.warning("⚠️ Please upload the file first.")
 else:
     file_dict = st.session_state["multi_files_df"]
     tabs = st.tabs(list(file_dict.keys()))
@@ -47,29 +47,34 @@ else:
 
             st.dataframe(df)
 
-            contact_col = next((col for col in df.columns if "Contact Resistance" in col), None)
+            contact_cols = next((col for col in df.columns if "Contact Resistance" in col), None)
 
-            if contact_col:
+            if contact_cols:
                 # 🎯 Contact Resistance
                 df['Probe ID'] = pd.to_numeric(df.get('Probe ID'), errors='coerce')
-                df[contact_col] = pd.to_numeric(df.get(contact_col), errors='coerce')
-                df = df.dropna(subset=['Probe ID', contact_col])
+                df[contact_cols] = pd.to_numeric(df.get(contact_cols), errors='coerce')
+                df = df.dropna(subset=['Probe ID', contact_cols])
                 df_sorted = df.sort_values(by='Probe ID').reset_index(drop=True)
 
-                fig_contact = px.scatter(df_sorted, x='Probe ID', y=contact_col,
+                fig_contact = px.scatter(df_sorted, x='Probe ID', y=contact_cols,
                                          title="Contact Resistance vs Probe ID")
                 st.plotly_chart(fig_contact, use_container_width=True)
+                # ✅ บันทึกลง session_state สำหรับ Contact Resistance
+                if "analyzed_files" not in st.session_state:
+                   st.session_state["analyzed_files"] = {}
 
-                # 🔽 Download
-                towrite = io.BytesIO()
-                df_sorted.to_excel(towrite, index=False, engine='openpyxl')
-                towrite.seek(0)
-                st.download_button(
-                    label="📥Download Analyzed Excel",
-                    data=towrite,
-                    file_name=f"analyzed_contact_{filename}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+                st.session_state["analyzed_files"][filename] = {
+                   "df_sorted": df_sorted,
+                   "top5_max": pd.DataFrame(),
+                   "top5_min": pd.DataFrame(),
+                   "error_out": pd.DataFrame(),
+                   "contact_cols": [contact_cols],
+                   "filename": filename
+}
+                # 🔗 ปุ่มลิงก์ไปหน้า Download.py
+                st.page_link("pages/Download.py", label="📥 Go to Download Page", icon="📁")
+                
+              
 
             else:
                 # 🎯 Convert & Clean
@@ -119,30 +124,20 @@ else:
                         "XY Error Out of Spec", f"xy_error_out_of_spec_{filename}"
                     )
 
-                # 🔽 Download analyzed single Excel
-                towrite = io.BytesIO()
-                df_sorted.to_excel(towrite, index=False, engine='openpyxl')
-                towrite.seek(0)
-                st.download_button(
-                    label="📥 Download Analyzed Excel",
-                    data=towrite,
-                    file_name=f"analyzed_{filename}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+            
 
-                # ✅ Excel รวมทุกตาราง
-                combined_excel = io.BytesIO()
-                with pd.ExcelWriter(combined_excel, engine='openpyxl') as writer:
-                    df_sorted.to_excel(writer, sheet_name="All Data", index=False)
-                    top5_max.to_excel(writer, sheet_name="Top 5 Max Dia", index=False)
-                    top5_min.to_excel(writer, sheet_name="Top 5 Min Dia", index=False)
-                    if not error_out.empty:
-                        error_out[['Probe ID', 'User Defined Label 4', 'X Error (µm)', 'Y Error (µm)']]\
-                            .to_excel(writer, sheet_name="XY Error Out of Spec", index=False)
-                combined_excel.seek(0)
-                st.download_button(
-                    label="📥 Download 📊 All Tables (Excel with Sheets)",
-                    data=combined_excel,
-                    file_name=f"all_tables_{filename}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+            
+                if "analyzed_files" not in st.session_state:
+                   st.session_state["analyzed_files"] = {}
+
+                st.session_state["analyzed_files"][filename] = {
+                    "df_sorted": df_sorted,
+                    "top5_max": top5_max,
+                    "top5_min": top5_min,
+                    "error_out": error_out,
+                    "contact_cols":contact_cols,
+                    "filename": filename
+                    }
+                # 🔗 ปุ่มไปหน้า Download
+                # 🔗 ปุ่มลิงก์ไปหน้า Download.py
+                st.page_link("pages/Download.py", label="📥 Go to Download Page", icon="📁")
