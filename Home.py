@@ -4,21 +4,25 @@ import chardet
 import io
 from io import StringIO
 from datetime import datetime
-from datetime import datetime, time
+from datetime import datetime, time,timedelta
 # ✅ ตรวจสอบเวลาเพื่อเปิด-ปิดแอป
+# แก้ timezone เป็นเวลาประเทศไทย (UTC+7)
+# ✅ เวลา UTC + แก้ timezone ให้เป็นเวลาประเทศไทย
+utc_now = datetime.utcnow()
+now_th = (utc_now + timedelta(hours=7)).time()
+
+# ✅ ช่วงเวลาอนุญาต
 allowed_start = time(8, 0)
 allowed_end = time(23, 59)
-now = datetime.now().time()
 
-if not (allowed_start <= now <= allowed_end):
-    st.markdown("<h2 style='color:red;'>🚫 It is currently out of business hours. (08:00–23:59)</h2>", unsafe_allow_html=True)
+# ✅ ตรวจสอบเวลาและหยุดแอปหากนอกเวลา
+if not (allowed_start <= now_th <= allowed_end):
+    st.markdown("<h2 style='color:red;'>🚫 It is currently out of business hours.<br>(08:00–23:59)</h2>", unsafe_allow_html=True)
     st.stop()
 
-
-# 🌟 Page styling
-
 st.set_page_config(page_title="CSV → Excel Converter", layout="centered")
-st.markdown("""
+st.markdown(
+    """
     <style>
     .main-title {
         font-size: 36px;
@@ -34,7 +38,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
+st.write("⏰ Current time (TH):", now_th.strftime("%H:%M"))
 st.markdown('<div class="main-title">📄 CSV → Excel (Filter by Probe ID)</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtext">Upload one or more CSV files to extract only the Probe ID section.</div>', unsafe_allow_html=True)
 
