@@ -4,8 +4,32 @@ import chardet
 import io
 from io import StringIO
 from datetime import datetime
+from datetime import datetime, time
+# ✅ ตรวจสอบเวลาเพื่อเปิด-ปิดแอป
+allowed_start = time(8, 0)
+allowed_end = time(23, 59)
+now = datetime.now().time()
 
+if not (allowed_start <= now <= allowed_end):
+    st.markdown("<h2 style='color:red;'>🚫 It is currently out of business hours. (08:00–23:59)</h2>", unsafe_allow_html=True)
+    st.stop()
+
+# 🌟 ตั้งค่าหน้า
+st.set_page_config(page_title="CSV → Excel Converter", layout="centered")
+
+# ✅ ตรวจสอบเวลาเพื่อเปิด-ปิดแอป
+allowed_start = time(8, 0)
+allowed_end = time(23, 59)
+now = datetime.now().time()
+
+if not (allowed_start <= now <= allowed_end):
+    st.markdown("<h2 style='color:red;'>🚫 ตอนนี้อยู่นอกเวลาทำการ (08:00–23:59)</h2>", unsafe_allow_html=True)
+    st.stop()
+
+# 🌟 ตั้งค่าหน้า
+st.set_page_config(page_title="CSV → Excel Converter", layout="centered")
 # 🌟 Page styling
+
 st.set_page_config(page_title="CSV → Excel Converter", layout="centered")
 st.markdown("""
     <style>
@@ -99,4 +123,4 @@ if st.session_state.multi_files_df:
                 st.rerun()
 
 # ➡️ ไปหน้า Analyzer 2
-st.page_link("pages/Probe Card Analyzer.py", label="➡️ Go to 🔍 Probe Card Analyzer Page")
+st.page_link("pages/Probe_Card_Analyzer_2.py", label="➡️ Go to 🔍 Probe Card Analyzer Page")
