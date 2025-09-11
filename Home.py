@@ -12,7 +12,7 @@ utc_now = datetime.utcnow()
 now_th = (utc_now + timedelta(hours=7)).time()
 
 # ✅ ช่วงเวลาอนุญาต
-allowed_start = time(8, 0)
+allowed_start = time(7, 0)
 allowed_end = time(23, 59)
 
 # ✅ ตรวจสอบเวลาและหยุดแอปหากนอกเวลา
