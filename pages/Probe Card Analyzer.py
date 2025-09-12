@@ -5,8 +5,8 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-st.set_page_config(page_title="Analyzer 2", layout="wide")
-st.title("📊 Probe Card Analyzer 2")
+st.set_page_config(page_title="Analyzer ", layout="wide")
+st.title("📊 Probe Card Analyzer")
 #------------------------------------------------------------------------------------------------------#
 # ✅ Dowload from muti_files
 if "multi_files_df" not in st.session_state or not st.session_state["multi_files_df"]:
@@ -131,6 +131,30 @@ else:
                 # Show graphs
                 st.plotly_chart(fig_dia, use_container_width=True)
 
+## ---------------------------------------------- 📈Out of Spec Table ------------------------------------------------------ #
+                # หา Probe ที่ Diameter อยู่นอกช่วง [LCL, UCL]
+                out_of_spec = df_sorted[
+                (df_sorted['Diameter (µm)'] > ucl) | (df_sorted['Diameter (µm)'] < lcl)
+                  ]
+
+                st.subheader(f"❗ Out of Spec Diameters ( < {lcl} or > {ucl} )")
+                if out_of_spec.empty:
+                 st.success("✅ All pins are within specification")
+                else:
+                 st.error(f"Find {len(out_of_spec)} pins out of range [{lcl}, {ucl}] µm")
+                 st.table(out_of_spec[['Probe ID', 'Probe name', 'Diameter (µm)']])              
+    #-----------------------------------------------------------------------------------------------------#
+                # 🔝 Top 5 Largest Diameters (all 400 pins)
+                top5_max = df_sorted.sort_values(by='Diameter (µm)', ascending=False).head(5)
+                st.subheader("🔝 Top 5 Largest Diameters (All Pins)")
+                st.table(top5_max[['Probe ID', 'Probe name', 'Diameter (µm)']])
+
+                # 🔻 Top 5 Smallest Diameters (all 400 pins)
+                top5_min = df_sorted.sort_values(by='Diameter (µm)', ascending=True).head(5)
+                st.subheader("🔻 Top 5 Smallest Diameters (All Pins)")
+                st.table(top5_min[['Probe ID', 'Probe name', 'Diameter (µm)']])
+#------------------------------------------------------------------------------------------------------#
+
 # ----------------------------------------------📈Plot Planarity-----------------------------------------# 
                 st.markdown("### ⚙️ Planarity Reference Settings")
 
@@ -180,25 +204,7 @@ else:
                   fig_plan.add_hline(y=-15, line_color="red", annotation_text="-15 µm")
                  # Show Graphs
                 st.plotly_chart(fig_plan, use_container_width=True)
-#-----------------------------------------------------------------------------------------------------#
-                # 📌 Filter DATA IN RANGE [LCL, UCL]
-                df_in_range = df_sorted[(df_sorted['Diameter (µm)'] <= ucl) & 
-                        (df_sorted['Diameter (µm)'] >= lcl)]
 
-                # 🔝 Top 5 Largest Diameters (In range)
-                top5_max = df_in_range.sort_values(by='Diameter (µm)', ascending=False).head(5)
-                
-                st.subheader(f"🔝 Top 5 Largest Diameters (within {lcl} - {ucl})")
-                st.table(top5_max[['Probe ID', 'Probe name', 'Diameter (µm)']])
-                
-
-                # 🔻 Top 5 Smallest Diameters (In range)
-                top5_min = df_in_range.sort_values(by='Diameter (µm)', ascending=True).head(5)
-                
-                st.subheader(f"🔻 Top 5 Smallest Diameters (within {lcl} - {ucl})")
-                st.table(top5_min[['Probe ID', 'Probe name', 'Diameter (µm)']])
-                
-#------------------------------------------------------------------------------------------------------#
                 # ❗ X/Y Error Out of Spec
                 error_out = df_sorted[
                     (df_sorted['X Error (µm)'].abs() > 15) | (df_sorted['Y Error (µm)'].abs() > 15)
@@ -222,6 +228,7 @@ else:
                     "top5_min": top5_min,
                     "error_out": error_out,
                     "v_align_out": v_align_out,
+                    "out_of_spec" : out_of_spec,
                     "planarity_out": planarity_out, 
                     "planarity_mode": planarity_mode,  # <--- เพิ่มเก็บ planarity_out
                     "ucl": ucl,
@@ -231,4 +238,4 @@ else:
                     }
                 # 🔗 ปุ่มไปหน้า Download
                 # 🔗 ปุ่มลิงก์ไปหน้า Download.py
-                st.page_link("pages/Download.py", label="📥 Go to Download Page", icon="📁")
+                st.page_link("pages/Download.py", label="📥 Go to Download(re) Page", icon="📁")
