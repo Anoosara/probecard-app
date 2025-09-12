@@ -238,4 +238,4 @@ else:
                     }
                 # 🔗 ปุ่มไปหน้า Download
                 # 🔗 ปุ่มลิงก์ไปหน้า Download.py
-                st.page_link("pages/Download.py", label="📥 Go to Download(re) Page", icon="📁")
+                st.page_link("pages/Download.py", label="📥 Go to Download Page", icon="📁")
