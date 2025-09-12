@@ -41,6 +41,7 @@ for i, (filename, data) in enumerate(st.session_state["analyzed_files"].items())
         v_align_out = data.get("v_align_out", pd.DataFrame())
         planarity_out = data.get("planarity_out", pd.DataFrame())
         planarity_mode = data.get("planarity_mode", "Unknown")
+        out_of_spec=data.get("out_of_spec",pd.DataFrame())
         ucl = st.session_state.get(f"ucl_{filename}", 24.0)
         lcl = st.session_state.get(f"lcl_{filename}", 14.0)    
 
@@ -60,9 +61,9 @@ for i, (filename, data) in enumerate(st.session_state["analyzed_files"].items())
             fig_dia.add_hline(y=ucl, line_color="red", annotation_text=f"UCL={ucl}")
             fig_dia.add_hline(y=lcl, line_color="red", annotation_text=f"LCL={lcl}")
             fig_pla = px.scatter(df_plot, x='Probe ID', y='Planarity (µm)', title="Planarity vs Probe ID")
-            if planarity_mode == "Delta 30" and not planarity_out.empty:
-              max_val = planarity_out['Planarity (µm)'].max()
-              min_val = planarity_out['Planarity (µm)'].min()
+            if planarity_mode == "Delta 30" :
+              max_val = df_sorted['Planarity (µm)'].max()
+              min_val = df_sorted['Planarity (µm)'].min()
               fig_pla.add_hline(y=max_val, line_color="red", annotation_text=f"Max = {max_val:.2f}")
               fig_pla.add_hline(y=min_val, line_color="red", annotation_text=f"Min = {min_val:.2f}")
             elif planarity_mode == "±15":
@@ -79,17 +80,20 @@ for i, (filename, data) in enumerate(st.session_state["analyzed_files"].items())
             df_sorted.to_excel(writer, sheet_name="All Data", index=False)
         # wirte top5 max/min---------------------------------------------#
             if not contact_columns:
-    # กรองข้อมูลให้อยู่ในช่วง UCL/LCL
-              df_in_range = df_sorted[(df_sorted['Diameter (µm)'] <= ucl) & 
-                            (df_sorted['Diameter (µm)'] >= lcl)]
+        # กรองข้อมูลให้อยู่ในช่วง UCL/LCL
+              # 🔝 Top 5 Largest Diameters (All Pins)
+              top5_max = df_sorted.sort_values(by='Diameter (µm)', ascending=False).head(5)
+              top5_max.to_excel(writer, sheet_name="Top 5 Max Dia (All)", index=False)
 
-              # คำนวณ Top 5 อีกครั้งจากช่วง UCL/LCL
-              top5_max = df_in_range.sort_values(by='Diameter (µm)', ascending=False).head(5)
-              top5_min = df_in_range.sort_values(by='Diameter (µm)', ascending=True).head(5)
-
-              # เขียนลง Excel
-              top5_max.to_excel(writer, sheet_name=f"Top 5 Max Dia ({lcl}-{ucl})", index=False)
-              top5_min.to_excel(writer, sheet_name=f"Top 5 Min Dia ({lcl}-{ucl})", index=False)
+             # 🔻 Top 5 Smallest Diameters (All Pins)
+              top5_min = df_sorted.sort_values(by='Diameter (µm)', ascending=True).head(5)
+              top5_min.to_excel(writer, sheet_name="Top 5 Min Dia (All)", index=False)
+              if not out_of_spec.empty:
+                    out_of_spec[['Probe ID', 'Probe name', 'Diameter (µm)']].to_excel(
+                        writer,
+                        sheet_name=f"Out of Spec Dia ({lcl}-{ucl})",
+                        index=False
+                    )
         #wite X/Y error ----------------------------------------------------------------#
             if not error_out.empty:
                 error_out[['Probe ID', 'Probe name', 'X Error (µm)', 'Y Error (µm)']].to_excel(
