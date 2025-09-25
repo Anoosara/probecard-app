@@ -132,3 +132,9 @@ if st.session_state.multi_files_df:
 # Step 13: ลิงก์ไปยังหน้า Analyzer
 # ➡️ ไปหน้า Analyzer 2
 st.page_link("pages/Probe Card Analyzer.py", label="➡️ Go to 🔍 Probe Card Analyzer Page")
+# ------------------------------------------------------------------------------------------#
+# Step 14: ลิงก์ไปยังหน้า Merge & Replace
+st.markdown("---")  # เส้นคั่น
+st.markdown("## 🔗 Merge & Replace Tool")
+st.markdown("Use this page to merge **Contact Resistance file** with **Diameter/Planarity file**.")
+st.page_link("pages/MergeReplace.py", label="➡️ Go to 🔗 Merge & Replace Page")
